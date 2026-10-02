@@ -1,22 +1,22 @@
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Structure;
-
-using System.Text;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Windows.Forms;
+using static Modless.FloorATT;
 // WinForms 와 Revit API 에 같은 이름이 있는 클래스는 어느 쪽을 쓸지 지정합니다.
 using TaskDialog = Autodesk.Revit.UI.TaskDialog;
-using System.Linq;
 
 namespace Modless
 {
@@ -71,6 +71,26 @@ namespace Modless
         private readonly ExternalEvent _exEvent;
         // 번호표에 적어 둔 할 일 (내 차례가 되면 실행됨)
         private Action<UIDocument, Document> _action;
+
+        public static string m_floorTypeName = "";
+
+        public static string m_wallTypeName = "";
+        public static string m_ceilingTypeName = "";
+
+        public static string m_wallHeight = "";
+        public static string m_ceilingHeight = "";
+        public static Level m_BaseLevel;
+        public static Level m_TopLevel;
+
+        public static string m_BLevelstr = "";
+        public static string m_TLevelstr = "";
+
+        // 바닥 벽 천장 생성기용 전역변수
+
+        public static bool m_isFloor = false;
+        public static bool m_isWall = false;
+        public static bool m_isCeiling = false;
+
         //
         public MainForm()
         {
@@ -82,21 +102,57 @@ namespace Modless
 
         // ───────────── 버튼 ─────────────
 
+        // 슬라브 생성
         private void button1_Click(object sender, EventArgs e)
         {
             RunRevit((uidoc, doc) =>
             {
-                // 할 일
-                TaskDialog.Show("Modless", "버튼 클릭! 내 차례!");
+                List<floor> fl = FloorATT.GetFloorList(doc, uidoc, m_floorTypeName);
+
+                foreach (floor f in fl)
+                {
+                    Util.CreateFloor(doc, f.m_CurveLoop, f.m_FloorType, f.m_levelm f.m_floorTypeTHK);
+                }
             });
         }
+
+        // 기둥 생성
+        private void button3_Click(object sender, EventArgs e)
+        {
+            RunRevit((uidoc, doc) =>
+        }
+    }
+        // 벽생성
+        private void button2_Click(object sender, EventArgs e)
+        {
+            RunRevit((uidoc, doc) =>
+            {
+
+            }
+    }
+
+        // 마감 벽 생성
+        private void button5_Click(object sender, EventArgs e)
+        {
+            RunRevit((uidoc, doc) =>
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Face);
+                Element e = doc.GetElement(r);
+                GeometryObject go = e.GetGeometryObjectFromReference(r);
+                Face face = go as Face;
+                EdgeArrayArray eaa = face.EdgeLoops;
+
+                List<CurveLoop> cls = new List<CurveLoop>();
+                foreach (EdgeArray item1 in item)
+            }
+
 
 
         // ───────────── 아래는 수정할 필요 없습니다 ─────────────
 
-        /// <summary>
-        /// 번호표를 뽑습니다. { } 안의 할 일은 내 차례가 되면 실행됩니다.
-        /// </summary>
+            /// <summary>
+            /// 번호표를 뽑습니다. { } 안의 할 일은 내 차례가 되면 실행됩니다.
+            /// </summary>
         private void RunRevit(Action<UIDocument, Document> action)
         {
             // 번호표에 할 일을 적고
@@ -150,5 +206,29 @@ namespace Modless
             _exEvent.Dispose();
             base.OnFormClosed(e);
         }
-    }
-}
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
